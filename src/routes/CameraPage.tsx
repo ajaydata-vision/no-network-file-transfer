@@ -6,7 +6,6 @@ import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { DownloadPanel } from "../components/DownloadPanel";
 import { ErrorNotice } from "../components/ErrorNotice";
 import { ProgressBar } from "../components/ProgressBar";
-import { ReceiverHelp } from "../components/ReceiverHelp";
 import { createPayloadString } from "../lib/fileEncoding";
 import { encodeAndDecodeQrText } from "../lib/qrLoopback";
 import { useTransferStore } from "../store/transferStore";
@@ -66,8 +65,6 @@ export function CameraPage() {
           </p>
         </div>
 
-        <ReceiverHelp compact />
-
         <ErrorNotice message={camera.error} onDismiss={clearCameraError} />
 
         <div className="space-y-2">
@@ -111,6 +108,8 @@ export function CameraPage() {
           </div>
         )}
 
+        <CameraLogPanel logs={camera.logs} onClear={clearCameraLogs} />
+
         <div className="rounded-md bg-slate-100 p-3">
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium text-slate-950">Chunks</span>
@@ -124,7 +123,6 @@ export function CameraPage() {
         </div>
 
         <DiagnosticsPanel diagnostics={camera.diagnostics} />
-        <CameraLogPanel logs={camera.logs} onClear={clearCameraLogs} />
       </section>
 
       <section className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-4 shadow-panel">
