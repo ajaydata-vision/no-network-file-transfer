@@ -145,7 +145,7 @@ Important correction to the original prompt: after the final chunk, the display 
 
 ## Chunk Size Strategy
 
-Initial target: 1000 bytes of compressed binary per chunk.
+Initial target: 700 bytes of compressed binary per chunk.
 
 Reasoning:
 
@@ -158,10 +158,10 @@ Reasoning:
 Implementation should expose this as a constant:
 
 ```ts
-const CHUNK_SIZE_BYTES = 1000;
+const CHUNK_SIZE_BYTES = 700;
 ```
 
-Local QR loopback testing showed that 1800 compressed bytes produced payloads around 2795 characters, which exceeded QR capacity at error correction level M. If local testing proves reliable at larger values, it can be raised cautiously. Reliability matters more than theoretical transfer speed.
+Local QR loopback testing showed that 1800 compressed bytes produced payloads around 2795 characters, which exceeded QR capacity at error correction level M. Further loopback testing showed that 1000 compressed bytes could fit QR capacity but still produce QR images that `jsQR` occasionally failed to decode. If local testing proves reliable at larger values, it can be raised cautiously. Reliability matters more than theoretical transfer speed.
 
 ## Decoding Flow
 
@@ -424,7 +424,7 @@ src/
 
 The original 2800-byte chunk size sounds efficient, but after base64 and JSON metadata, payloads may become dense QR codes that scan poorly from a camera pointed at a screen. Error correction level M also increases symbol density compared with lower correction.
 
-Correction: start at 1000 compressed bytes per chunk, keep it as a constant, and treat larger chunks as an optimization only after QR loopback and camera reliability are proven.
+Correction: start at 700 compressed bytes per chunk, keep it as a constant, and treat larger chunks as an optimization only after QR loopback and camera reliability are proven.
 
 ### Risk 2: Stopping after one QR sequence pass can make real transfers fail.
 
@@ -446,7 +446,7 @@ Correction: receiver state must be driven entirely from scanned QR payloads afte
 
 ### Risk 5: 100 MB file support is technically possible but operationally poor.
 
-At 1000-byte chunks, a compressed 100 MB file could require tens of thousands of QR codes and hours of optical transfer. Browser memory pressure will also be high if every JSON payload and QR string is precomputed.
+At 700-byte chunks, a compressed 100 MB file could require tens of thousands of QR codes and hours of optical transfer. Browser memory pressure will also be high if every JSON payload and QR string is precomputed.
 
 Correction: keep the 100 MB hard maximum because it is required, but display an estimated transfer duration and warning for large files. Generate QR payloads lazily by chunk index if memory becomes an issue. For first implementation, precomputed payload strings are acceptable for small/medium local tests, but the architecture should keep generation isolated so it can become lazy.
 
@@ -485,7 +485,7 @@ Correction: include pure utility tests and manual QR stepping. For full optical 
 - Use `/display` and `/camera` routes, with both presented as modes in one app.
 - Receiver cannot prevalidate session existence; it validates UUID syntax first and QR payloads later.
 - Sender loops QR chunks continuously until expiry, pause, or stop.
-- Start with `CHUNK_SIZE_BYTES = 1000`.
+- Start with `CHUNK_SIZE_BYTES = 700`.
 - Keep payload generation logic isolated so it can be changed from eager to lazy later.
 - Do not persist file bytes, chunks, or payloads to localStorage.
 - Implement camera focus as progressive enhancement.
