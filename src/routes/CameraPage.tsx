@@ -34,15 +34,25 @@ export function CameraPage() {
 
   async function runLocalLoopback() {
     if (!displayTransfer) return;
-    startLoopbackSession(displayTransfer.sessionId);
-    addCameraLog(
-      `QR loopback test has ${displayTransfer.chunks.length} chunk(s). Each chunk is rendered as QR and decoded with jsQR before receive.`,
-    );
-    for (let index = 0; index < displayTransfer.chunks.length; index += 1) {
-      const payload = await createPayloadString(displayTransfer, index);
-      const decodedPayload = await encodeAndDecodeQrText(payload);
-      addCameraLog(`QR image decoded for chunk ${index + 1}.`);
-      await recordScannedPayload(decodedPayload);
+    try {
+      startLoopbackSession(displayTransfer.sessionId);
+      addCameraLog(
+        `QR loopback test has ${displayTransfer.chunks.length} chunk(s). Each chunk is rendered as QR and decoded with jsQR before receive.`,
+      );
+      for (let index = 0; index < displayTransfer.chunks.length; index += 1) {
+        addCameraLog(`Rendering QR image for chunk ${index + 1}.`);
+        const payload = await createPayloadString(displayTransfer, index);
+        addCameraLog(`QR payload for chunk ${index + 1} is ${payload.length} chars.`);
+        const decodedPayload = await encodeAndDecodeQrText(payload);
+        addCameraLog(`QR image decoded for chunk ${index + 1}.`);
+        await recordScannedPayload(decodedPayload);
+      }
+    } catch (error) {
+      addCameraLog(
+        `QR loopback failed: ${
+          error instanceof Error ? error.message : "Unknown loopback error."
+        }`,
+      );
     }
   }
 

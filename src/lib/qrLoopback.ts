@@ -6,7 +6,7 @@ export async function encodeAndDecodeQrText(text: string): Promise<string> {
   await QRCode.toCanvas(canvas, text, {
     errorCorrectionLevel: "M",
     margin: 3,
-    width: 560,
+    width: 960,
     color: {
       dark: "#0f172a",
       light: "#ffffff",
@@ -24,7 +24,9 @@ export async function encodeAndDecodeQrText(text: string): Promise<string> {
   });
 
   if (!decoded?.data) {
-    throw new Error("QR loopback decoder could not read the generated QR image.");
+    throw new Error(
+      `QR loopback decoder could not read generated QR image (${canvas.width}x${canvas.height}, ${text.length} chars).`,
+    );
   }
 
   return decoded.data;
