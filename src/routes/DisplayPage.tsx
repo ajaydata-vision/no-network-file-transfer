@@ -4,6 +4,7 @@ import { ErrorNotice } from "../components/ErrorNotice";
 import { FileDropzone } from "../components/FileDropzone";
 import { ProgressBar } from "../components/ProgressBar";
 import { QRPresenter } from "../components/QRPresenter";
+import { ReceiverSetupQr } from "../components/ReceiverSetupQr";
 import { TransferControls } from "../components/TransferControls";
 import { TransferStats } from "../components/TransferStats";
 import { MAX_INTERVAL_MS, MIN_INTERVAL_MS } from "../lib/constants";
@@ -101,6 +102,8 @@ export function DisplayPage() {
           intervalMs={display.intervalMs}
           cycleCount={display.cycleCount}
         />
+
+        {transfer ? <ReceiverSetupQr sessionId={transfer.sessionId} /> : null}
       </section>
 
       <section className="flex min-h-[560px] flex-col items-center justify-center gap-4 rounded-md border border-slate-200 bg-slate-50 p-4 shadow-panel">

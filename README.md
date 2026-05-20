@@ -31,6 +31,20 @@ http://127.0.0.1:15173
 
 Camera access works on `localhost` in modern browsers.
 
+For a second device on the same network, run:
+
+```bash
+npm run dev:lan
+```
+
+Then open the app from your computer's LAN address, for example:
+
+```text
+http://192.168.1.10:15173
+```
+
+Use that LAN base URL in the Display Mode `Receiver Setup QR` field so a phone can scan one setup QR and open Camera Mode with the session prefilled.
+
 ## Modes
 
 ### Display Mode
@@ -73,6 +87,7 @@ This proves compression, chunking, QR generation, QR decoding, payload validatio
 
 ```bash
 npm run dev
+npm run dev:lan
 npm run build
 npm test
 ```

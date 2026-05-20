@@ -1,5 +1,6 @@
-import { Camera, Play } from "lucide-react";
 import { useEffect } from "react";
+import { Camera, Play } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import { CameraLogPanel } from "../components/CameraLogPanel";
 import { CameraScanner } from "../components/CameraScanner";
 import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
@@ -11,6 +12,7 @@ import { encodeAndDecodeQrText } from "../lib/qrLoopback";
 import { useTransferStore } from "../store/transferStore";
 
 export function CameraPage() {
+  const [searchParams] = useSearchParams();
   const camera = useTransferStore((state) => state.camera);
   const displayTransfer = useTransferStore((state) => state.display.preparedTransfer);
   const setCameraSessionInput = useTransferStore((state) => state.setCameraSessionInput);
@@ -24,6 +26,14 @@ export function CameraPage() {
   const received = camera.receivedChunks.size;
   const total = camera.metadata?.totalChunks ?? 0;
   const progress = total ? (received / total) * 100 : 0;
+
+  useEffect(() => {
+    const session = searchParams.get("session");
+    if (session && session !== camera.enteredSessionId) {
+      setCameraSessionInput(session);
+      addCameraLog("Session ID loaded from receiver setup URL.");
+    }
+  }, [addCameraLog, camera.enteredSessionId, searchParams, setCameraSessionInput]);
 
   useEffect(() => {
     if (displayTransfer && !camera.enteredSessionId) {

@@ -27,6 +27,7 @@ The app is a browser-only optical file transfer prototype. It has:
 - Display Mode for file upload, compression, chunking, hash generation, QR rendering, and timed QR playback.
 - Camera Mode for session entry, camera startup, frame scanning, QR decode, chunk validation, reconstruction, and download.
 - QR Loopback Test for same-browser validation without physical camera optics.
+- Receiver Setup QR that opens `/camera?session=...` with the session prefilled.
 - Camera Log panel for browser-side camera and QR loopback diagnostics.
 - Five-digit dev port configured by default.
 
@@ -52,6 +53,20 @@ vite --host 127.0.0.1 --port 15173 --strictPort
 ```
 
 Port `5173` was avoided because another local app was already using it.
+
+For a second device on the same LAN:
+
+```bash
+npm run dev:lan
+```
+
+Then use a LAN URL such as:
+
+```text
+http://192.168.1.10:15173
+```
+
+Display Mode includes a `Receiver Setup QR` panel. If the receiver is a phone, set the receiver app base URL to the LAN URL, not `127.0.0.1`.
 
 ## Verification Commands
 
@@ -157,8 +172,8 @@ That result was after QR loopback reliability fixes.
 
 1. Open Display Mode on sender computer.
 2. Upload file and start transfer.
-3. Open Camera Mode on a second device or second browser with camera access.
-4. Enter the session ID.
+3. Scan the `Receiver Setup QR` with the receiver phone's normal camera.
+4. Camera Mode opens with the session ID prefilled.
 5. Click Start Camera.
 6. Point camera at the sender QR display.
 7. Download once transfer completes.
