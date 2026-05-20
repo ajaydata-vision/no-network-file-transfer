@@ -4,6 +4,7 @@ import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { DownloadPanel } from "../components/DownloadPanel";
 import { ErrorNotice } from "../components/ErrorNotice";
 import { ProgressBar } from "../components/ProgressBar";
+import { ReceiverHelp } from "../components/ReceiverHelp";
 import { useTransferStore } from "../store/transferStore";
 
 export function CameraPage() {
@@ -25,6 +26,8 @@ export function CameraPage() {
             Enter the sender session ID, open the camera, and scan the QR sequence.
           </p>
         </div>
+
+        <ReceiverHelp compact />
 
         <ErrorNotice message={camera.error} onDismiss={clearCameraError} />
 

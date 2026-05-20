@@ -4,6 +4,7 @@ import { ErrorNotice } from "../components/ErrorNotice";
 import { FileDropzone } from "../components/FileDropzone";
 import { ProgressBar } from "../components/ProgressBar";
 import { QRPresenter } from "../components/QRPresenter";
+import { ReceiverHelp } from "../components/ReceiverHelp";
 import { TransferControls } from "../components/TransferControls";
 import { TransferStats } from "../components/TransferStats";
 import { MAX_INTERVAL_MS, MIN_INTERVAL_MS } from "../lib/constants";
@@ -54,6 +55,8 @@ export function DisplayPage() {
         <ErrorNotice message={display.error} onDismiss={clearDisplayError} />
 
         <FileDropzone file={display.selectedFile} onSelect={selectFile} />
+
+        <ReceiverHelp compact />
 
         {display.selectedFile && !transfer ? (
           <div className="rounded-md bg-slate-100 p-3 text-sm text-slate-600">
