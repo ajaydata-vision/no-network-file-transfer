@@ -31,6 +31,11 @@ export function ReceiverHelp({ compact = false }: ReceiverHelpProps) {
   return (
     <section className="rounded-md border border-cyan-200 bg-cyan-50 p-4">
       <h2 className="text-sm font-semibold text-cyan-950">How to receive this file</h2>
+      <p className="mt-1 text-sm text-cyan-800">
+        For real optical transfer, use a second device or a second browser window with a
+        camera pointed at this screen. For local-only verification, Camera Mode can run
+        a same-browser test after a Display session is created.
+      </p>
       <div className={compact ? "mt-3 space-y-3" : "mt-3 grid gap-3 sm:grid-cols-2"}>
         {steps.map(({ icon: Icon, title, text }) => (
           <div key={title} className="flex gap-3">

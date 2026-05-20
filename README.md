@@ -49,6 +49,17 @@ Camera access works on `localhost` in modern browsers.
 4. Point the camera at the display QR sequence.
 5. Download the verified file when transfer completes.
 
+### Same-Browser Local Test
+
+For local verification without a second device:
+
+1. Create a Display Mode transfer.
+2. Switch to Camera Mode in the same browser.
+3. Click `Run Same-Browser Test`.
+4. The receiver validates the generated QR payloads in memory and shows the download when reconstruction succeeds.
+
+This proves compression, chunking, payload validation, reconstruction, and hashing. It does not test real camera optics.
+
 ## Important Practical Notes
 
 - The default QR interval is 300 ms.

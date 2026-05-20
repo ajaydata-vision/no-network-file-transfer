@@ -5,17 +5,30 @@ import { DownloadPanel } from "../components/DownloadPanel";
 import { ErrorNotice } from "../components/ErrorNotice";
 import { ProgressBar } from "../components/ProgressBar";
 import { ReceiverHelp } from "../components/ReceiverHelp";
+import { createPayloadString } from "../lib/fileEncoding";
 import { useTransferStore } from "../store/transferStore";
 
 export function CameraPage() {
   const camera = useTransferStore((state) => state.camera);
+  const displayTransfer = useTransferStore((state) => state.display.preparedTransfer);
   const setCameraSessionInput = useTransferStore((state) => state.setCameraSessionInput);
   const startCameraSession = useTransferStore((state) => state.startCameraSession);
+  const startLoopbackSession = useTransferStore((state) => state.startLoopbackSession);
+  const recordScannedPayload = useTransferStore((state) => state.recordScannedPayload);
   const clearCameraError = useTransferStore((state) => state.clearCameraError);
 
   const received = camera.receivedChunks.size;
   const total = camera.metadata?.totalChunks ?? 0;
   const progress = total ? (received / total) * 100 : 0;
+
+  async function runLocalLoopback() {
+    if (!displayTransfer) return;
+    startLoopbackSession(displayTransfer.sessionId);
+    for (let index = 0; index < displayTransfer.chunks.length; index += 1) {
+      const payload = await createPayloadString(displayTransfer, index);
+      await recordScannedPayload(payload);
+    }
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)]">
@@ -56,6 +69,16 @@ export function CameraPage() {
           )}
           {camera.isCameraActive ? "Camera Active" : "Start Camera"}
         </button>
+
+        {displayTransfer ? (
+          <button
+            type="button"
+            className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+            onClick={runLocalLoopback}
+          >
+            Run Same-Browser Test
+          </button>
+        ) : null}
 
         <div className="rounded-md bg-slate-100 p-3">
           <div className="flex items-center justify-between text-sm">

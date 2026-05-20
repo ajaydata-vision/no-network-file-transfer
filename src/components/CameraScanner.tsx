@@ -21,6 +21,7 @@ export function CameraScanner() {
   const status = useTransferStore((state) => state.camera.status);
   const brightnessBoost = useTransferStore((state) => state.camera.brightnessBoost);
   const stopCameraSession = useTransferStore((state) => state.stopCameraSession);
+  const failCameraSession = useTransferStore((state) => state.failCameraSession);
   const recordScannedPayload = useTransferStore((state) => state.recordScannedPayload);
   const updateDiagnostics = useTransferStore((state) => state.updateDiagnostics);
   const setBrightnessBoost = useTransferStore((state) => state.setBrightnessBoost);
@@ -57,12 +58,12 @@ export function CameraScanner() {
         await video.play();
         scheduleScan();
       } catch (error) {
-        setRuntimeError(
+        const message =
           error instanceof Error
             ? error.message
-            : "Camera permission was denied or unavailable.",
-        );
-        stopCameraSession();
+            : "Camera permission was denied or unavailable.";
+        setRuntimeError(message);
+        failCameraSession(message);
       }
     }
 
@@ -72,7 +73,7 @@ export function CameraScanner() {
       cancelled = true;
       stopStream();
     };
-  }, [isActive, stopCameraSession]);
+  }, [failCameraSession, isActive, stopCameraSession]);
 
   function stopStream() {
     if (timerRef.current) {

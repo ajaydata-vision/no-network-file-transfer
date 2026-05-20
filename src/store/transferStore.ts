@@ -69,6 +69,8 @@ type TransferStore = {
   setIntervalMs: (intervalMs: number) => void;
   setCameraSessionInput: (sessionId: string) => void;
   startCameraSession: () => void;
+  startLoopbackSession: (sessionId: string) => void;
+  failCameraSession: (message: string) => void;
   stopCameraSession: () => void;
   recordScannedPayload: (raw: string) => Promise<boolean>;
   updateDiagnostics: (diagnostics: Partial<ScannerDiagnostics>) => void;
@@ -307,6 +309,44 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
       },
     }));
   },
+
+  startLoopbackSession: (sessionId) => {
+    if (!isValidUuid(sessionId)) {
+      set((state) => ({
+        camera: {
+          ...state.camera,
+          error: "Local test session ID is not valid.",
+          status: "error",
+        },
+      }));
+      return;
+    }
+
+    set((state) => ({
+      camera: {
+        ...resetCameraState(state.camera),
+        enteredSessionId: sessionId,
+        activeSessionId: sessionId,
+        isCameraActive: false,
+        status: "waiting",
+        startedAt: Date.now(),
+        error: undefined,
+        diagnostics: {
+          ...emptyDiagnostics,
+          hint: "Running local loopback without camera.",
+        },
+      },
+    }));
+  },
+
+  failCameraSession: (message) =>
+    set((state) => ({
+      camera: {
+        ...resetCameraState(state.camera),
+        status: "error",
+        error: message,
+      },
+    })),
 
   stopCameraSession: () =>
     set((state) => ({
