@@ -1,0 +1,82 @@
+# Optical File Transfer
+
+Browser-only file transfer through QR codes. One browser displays encoded file chunks as QR frames. Another browser or phone camera scans those frames, verifies chunk hashes, reconstructs the original file, and downloads it.
+
+No backend, no accounts, no external services.
+
+## Tech Stack
+
+- React 18, TypeScript, Vite
+- React Router for Display and Camera modes
+- Tailwind CSS 3
+- Zustand state store
+- `qrcode` for QR generation
+- `jsqr` for QR decoding
+- `pako` for gzip/gunzip
+- `crypto-js` for SHA-256
+- `uuid` for session IDs
+
+## Run Locally
+
+```bash
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+Camera access works on `localhost` in modern browsers.
+
+## Modes
+
+### Display Mode
+
+1. Open `/display`.
+2. Select a file up to 100 MB.
+3. Click `Start Transfer`.
+4. Copy/share the session ID.
+5. Keep the QR code visible. The sender loops chunks until stopped or expired.
+
+### Camera Mode
+
+1. Open `/camera` on another device or tab.
+2. Enter the session ID.
+3. Click `Start Camera`.
+4. Point the camera at the display QR sequence.
+5. Download the verified file when transfer completes.
+
+## Important Practical Notes
+
+- The default QR interval is 300 ms.
+- Chunk size starts at 1800 compressed bytes for scan reliability.
+- Large files can take a long time over optical QR transfer.
+- The receiver cannot validate that a session exists before scanning because there is no backend. It validates the UUID format first, then validates scanned QR payloads.
+- Real optical testing needs a physical camera, phone, external webcam, or virtual camera pointed at the display.
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm test
+```
+
+## Verification
+
+The implementation includes utility tests for:
+
+- base64 byte round trip
+- chunk split/concat
+- out-of-order chunk reconstruction
+- payload chunk hash validation
+- final file hash validation
+
+## Repository
+
+```text
+https://github.com/ajaydata-vision/no-network-file-transfer.git
+```
