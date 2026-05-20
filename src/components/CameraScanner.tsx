@@ -22,6 +22,7 @@ export function CameraScanner() {
   const brightnessBoost = useTransferStore((state) => state.camera.brightnessBoost);
   const stopCameraSession = useTransferStore((state) => state.stopCameraSession);
   const failCameraSession = useTransferStore((state) => state.failCameraSession);
+  const addCameraLog = useTransferStore((state) => state.addCameraLog);
   const recordScannedPayload = useTransferStore((state) => state.recordScannedPayload);
   const updateDiagnostics = useTransferStore((state) => state.updateDiagnostics);
   const setBrightnessBoost = useTransferStore((state) => state.setBrightnessBoost);
@@ -38,6 +39,10 @@ export function CameraScanner() {
       setRuntimeError("");
       setFocusMessage("");
       try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error("Camera API is not available in this browser context.");
+        }
+        addCameraLog("Requesting camera permission.");
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: {
@@ -52,10 +57,17 @@ export function CameraScanner() {
         }
 
         streamRef.current = stream;
+        addCameraLog(
+          `Camera stream opened with ${stream.getVideoTracks().length} video track(s).`,
+        );
         const video = videoRef.current;
         if (!video) return;
         video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          addCameraLog(`Video metadata loaded: ${video.videoWidth}x${video.videoHeight}.`);
+        };
         await video.play();
+        addCameraLog("Video preview started.");
         scheduleScan();
       } catch (error) {
         const message =
@@ -73,7 +85,7 @@ export function CameraScanner() {
       cancelled = true;
       stopStream();
     };
-  }, [failCameraSession, isActive, stopCameraSession]);
+  }, [addCameraLog, failCameraSession, isActive, stopCameraSession]);
 
   function stopStream() {
     if (timerRef.current) {
@@ -136,6 +148,7 @@ export function CameraScanner() {
       }
 
       if (code?.data) {
+        addCameraLog("QR candidate detected.");
         await recordScannedPayload(code.data);
         updateDiagnostics({
           fps: frameStats.fps,

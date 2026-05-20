@@ -17,6 +17,7 @@ import {
 } from "../lib/validation";
 import type {
   AppMode,
+  CameraLogEntry,
   Notification,
   PreparedTransfer,
   ReceiveMetadata,
@@ -49,6 +50,7 @@ type CameraState = {
   brightnessBoost: number;
   downloadUrl?: string;
   error?: string;
+  logs: CameraLogEntry[];
 };
 
 type TransferStore = {
@@ -72,6 +74,8 @@ type TransferStore = {
   startLoopbackSession: (sessionId: string) => void;
   failCameraSession: (message: string) => void;
   stopCameraSession: () => void;
+  addCameraLog: (message: string) => void;
+  clearCameraLogs: () => void;
   recordScannedPayload: (raw: string) => Promise<boolean>;
   updateDiagnostics: (diagnostics: Partial<ScannerDiagnostics>) => void;
   setBrightnessBoost: (value: number) => void;
@@ -96,6 +100,7 @@ const initialCamera: CameraState = {
   receivedChunks: new Map(),
   diagnostics: emptyDiagnostics,
   brightnessBoost: 100,
+  logs: [],
 };
 
 function notify(message: string, type: Notification["type"] = "info"): Notification {
@@ -106,12 +111,21 @@ function notify(message: string, type: Notification["type"] = "info"): Notificat
   };
 }
 
+function cameraLog(message: string): CameraLogEntry {
+  return {
+    id: crypto.randomUUID(),
+    time: Date.now(),
+    message,
+  };
+}
+
 function resetCameraState(camera: CameraState): CameraState {
   revokeDownloadUrl(camera.downloadUrl);
   return {
     ...initialCamera,
     enteredSessionId: camera.enteredSessionId,
     brightnessBoost: camera.brightnessBoost,
+    logs: camera.logs,
   };
 }
 
@@ -306,6 +320,14 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
         status: "waiting",
         startedAt: Date.now(),
         error: undefined,
+        logs: [
+          cameraLog(
+            `Camera start requested. secureContext=${window.isSecureContext}; mediaDevices=${Boolean(
+              navigator.mediaDevices?.getUserMedia,
+            )}`,
+          ),
+          ...state.camera.logs.slice(0, 19),
+        ],
       },
     }));
   },
@@ -335,6 +357,10 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
           ...emptyDiagnostics,
           hint: "Running local loopback without camera.",
         },
+        logs: [
+          cameraLog(`Same-browser test started for session ${sessionId}.`),
+          ...state.camera.logs.slice(0, 19),
+        ],
       },
     }));
   },
@@ -345,12 +371,32 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
         ...resetCameraState(state.camera),
         status: "error",
         error: message,
+        logs: [cameraLog(`Camera failed: ${message}`), ...state.camera.logs.slice(0, 19)],
       },
     })),
 
   stopCameraSession: () =>
     set((state) => ({
-      camera: resetCameraState(state.camera),
+      camera: {
+        ...resetCameraState(state.camera),
+        logs: [cameraLog("Camera session stopped."), ...state.camera.logs.slice(0, 19)],
+      },
+    })),
+
+  addCameraLog: (message) =>
+    set((state) => ({
+      camera: {
+        ...state.camera,
+        logs: [cameraLog(message), ...state.camera.logs.slice(0, 29)],
+      },
+    })),
+
+  clearCameraLogs: () =>
+    set((state) => ({
+      camera: {
+        ...state.camera,
+        logs: [],
+      },
     })),
 
   recordScannedPayload: async (raw) => {
@@ -429,6 +475,14 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
           metadata,
           diagnostics,
           error: undefined,
+          logs: isNewChunk
+            ? [
+                cameraLog(
+                  `Received chunk ${payload.chunkIndex + 1} of ${metadata.totalChunks}.`,
+                ),
+                ...current.camera.logs.slice(0, 19),
+              ]
+            : current.camera.logs,
         },
       }));
       return isNewChunk;

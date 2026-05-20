@@ -1,4 +1,6 @@
 import { Camera, Play } from "lucide-react";
+import { useEffect } from "react";
+import { CameraLogPanel } from "../components/CameraLogPanel";
 import { CameraScanner } from "../components/CameraScanner";
 import { DiagnosticsPanel } from "../components/DiagnosticsPanel";
 import { DownloadPanel } from "../components/DownloadPanel";
@@ -15,15 +17,24 @@ export function CameraPage() {
   const startCameraSession = useTransferStore((state) => state.startCameraSession);
   const startLoopbackSession = useTransferStore((state) => state.startLoopbackSession);
   const recordScannedPayload = useTransferStore((state) => state.recordScannedPayload);
+  const addCameraLog = useTransferStore((state) => state.addCameraLog);
+  const clearCameraLogs = useTransferStore((state) => state.clearCameraLogs);
   const clearCameraError = useTransferStore((state) => state.clearCameraError);
 
   const received = camera.receivedChunks.size;
   const total = camera.metadata?.totalChunks ?? 0;
   const progress = total ? (received / total) * 100 : 0;
 
+  useEffect(() => {
+    if (displayTransfer && !camera.enteredSessionId) {
+      setCameraSessionInput(displayTransfer.sessionId);
+    }
+  }, [camera.enteredSessionId, displayTransfer, setCameraSessionInput]);
+
   async function runLocalLoopback() {
     if (!displayTransfer) return;
     startLoopbackSession(displayTransfer.sessionId);
+    addCameraLog(`Same-browser test has ${displayTransfer.chunks.length} chunk(s).`);
     for (let index = 0; index < displayTransfer.chunks.length; index += 1) {
       const payload = await createPayloadString(displayTransfer, index);
       await recordScannedPayload(payload);
@@ -73,12 +84,17 @@ export function CameraPage() {
         {displayTransfer ? (
           <button
             type="button"
-            className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+            className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-md border border-cyan-300 bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-950 hover:bg-cyan-100"
             onClick={runLocalLoopback}
           >
             Run Same-Browser Test
           </button>
-        ) : null}
+        ) : (
+          <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+            Same-browser test appears after you create a Display Mode session in this
+            tab.
+          </div>
+        )}
 
         <div className="rounded-md bg-slate-100 p-3">
           <div className="flex items-center justify-between text-sm">
@@ -93,6 +109,7 @@ export function CameraPage() {
         </div>
 
         <DiagnosticsPanel diagnostics={camera.diagnostics} />
+        <CameraLogPanel logs={camera.logs} onClear={clearCameraLogs} />
       </section>
 
       <section className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-4 shadow-panel">

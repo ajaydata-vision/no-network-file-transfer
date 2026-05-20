@@ -59,3 +59,9 @@ export type Notification = {
   message: string;
   type: "info" | "success" | "warning" | "error";
 };
+
+export type CameraLogEntry = {
+  id: string;
+  time: number;
+  message: string;
+};
