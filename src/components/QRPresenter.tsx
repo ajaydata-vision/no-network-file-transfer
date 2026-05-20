@@ -23,10 +23,10 @@ export function QRPresenter({ transfer, chunkIndex }: QRPresenterProps) {
         const payload = await createPayloadString(transfer, chunkIndex);
         const url = await QRCode.toDataURL(payload, {
           errorCorrectionLevel: "M",
-          margin: 3,
-          width: 560,
+          margin: 4,
+          width: 640,
           color: {
-            dark: "#0f172a",
+            dark: "#000000",
             light: "#ffffff",
           },
         });
