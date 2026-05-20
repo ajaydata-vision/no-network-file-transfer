@@ -3,6 +3,7 @@ dist
 .vite
 *.tsbuildinfo
 vite-dev*.log
+dev-*.log
 vite.config.js
 vite.config.d.ts
 *.local

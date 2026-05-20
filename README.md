@@ -26,7 +26,7 @@ npm run dev
 Open:
 
 ```text
-http://localhost:5173
+http://127.0.0.1:15173
 ```
 
 Camera access works on `localhost` in modern browsers.
