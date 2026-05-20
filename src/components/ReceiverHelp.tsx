@@ -34,7 +34,7 @@ export function ReceiverHelp({ compact = false }: ReceiverHelpProps) {
       <p className="mt-1 text-sm text-cyan-800">
         For real optical transfer, use a second device or a second browser window with a
         camera pointed at this screen. For local-only verification, Camera Mode can run
-        a same-browser test after a Display session is created.
+        a QR loopback test after a Display session is created.
       </p>
       <div className={compact ? "mt-3 space-y-3" : "mt-3 grid gap-3 sm:grid-cols-2"}>
         {steps.map(({ icon: Icon, title, text }) => (

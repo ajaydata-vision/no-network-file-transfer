@@ -8,6 +8,7 @@ import { ErrorNotice } from "../components/ErrorNotice";
 import { ProgressBar } from "../components/ProgressBar";
 import { ReceiverHelp } from "../components/ReceiverHelp";
 import { createPayloadString } from "../lib/fileEncoding";
+import { encodeAndDecodeQrText } from "../lib/qrLoopback";
 import { useTransferStore } from "../store/transferStore";
 
 export function CameraPage() {
@@ -34,10 +35,14 @@ export function CameraPage() {
   async function runLocalLoopback() {
     if (!displayTransfer) return;
     startLoopbackSession(displayTransfer.sessionId);
-    addCameraLog(`Same-browser test has ${displayTransfer.chunks.length} chunk(s).`);
+    addCameraLog(
+      `QR loopback test has ${displayTransfer.chunks.length} chunk(s). Each chunk is rendered as QR and decoded with jsQR before receive.`,
+    );
     for (let index = 0; index < displayTransfer.chunks.length; index += 1) {
       const payload = await createPayloadString(displayTransfer, index);
-      await recordScannedPayload(payload);
+      const decodedPayload = await encodeAndDecodeQrText(payload);
+      addCameraLog(`QR image decoded for chunk ${index + 1}.`);
+      await recordScannedPayload(decodedPayload);
     }
   }
 
@@ -87,7 +92,7 @@ export function CameraPage() {
             className="focus-ring inline-flex w-full items-center justify-center gap-2 rounded-md border border-cyan-300 bg-cyan-50 px-4 py-3 text-sm font-semibold text-cyan-950 hover:bg-cyan-100"
             onClick={runLocalLoopback}
           >
-            Run Same-Browser Test
+            Run QR Loopback Test
           </button>
         ) : (
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
