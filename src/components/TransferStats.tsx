@@ -1,4 +1,5 @@
 import { formatBytes, estimateTransferDuration } from "../lib/format";
+import { CHUNK_SIZE_BYTES } from "../lib/constants";
 import type { PreparedTransfer } from "../types/transfer";
 
 type TransferStatsProps = {
@@ -10,7 +11,7 @@ type TransferStatsProps = {
 export function TransferStats({ transfer, intervalMs, cycleCount }: TransferStatsProps) {
   if (!transfer) return null;
 
-  const speed = (1800 * 1000) / intervalMs;
+  const speed = (CHUNK_SIZE_BYTES * 1000) / intervalMs;
 
   return (
     <dl className="grid gap-3 text-sm sm:grid-cols-2">

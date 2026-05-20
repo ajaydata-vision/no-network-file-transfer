@@ -64,7 +64,7 @@ This proves compression, chunking, QR generation, QR decoding, payload validatio
 ## Important Practical Notes
 
 - The default QR interval is 300 ms.
-- Chunk size starts at 1800 compressed bytes for scan reliability.
+- Chunk size is 1000 compressed bytes to keep JSON payloads inside QR capacity at error correction level M.
 - Large files can take a long time over optical QR transfer.
 - The receiver cannot validate that a session exists before scanning because there is no backend. It validates the UUID format first, then validates scanned QR payloads.
 - Real optical testing needs a physical camera, phone, external webcam, or virtual camera pointed at the display.
