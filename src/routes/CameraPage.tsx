@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Camera, Play } from "lucide-react";
+import { Camera, Play, ShieldAlert } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { CameraLogPanel } from "../components/CameraLogPanel";
 import { CameraScanner } from "../components/CameraScanner";
@@ -26,6 +26,9 @@ export function CameraPage() {
   const received = camera.receivedChunks.size;
   const total = camera.metadata?.totalChunks ?? 0;
   const progress = total ? (received / total) * 100 : 0;
+  const remaining = total ? Math.max(0, total - received) : 0;
+  const cameraApiNeedsSecureUrl =
+    !window.isSecureContext && window.location.hostname !== "localhost";
 
   useEffect(() => {
     const session = searchParams.get("session");
@@ -69,11 +72,21 @@ export function CameraPage() {
     <div className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)]">
       <section className="space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-panel">
         <div>
-          <h2 className="text-lg font-semibold text-slate-950">Camera Mode</h2>
+          <h2 className="text-lg font-semibold text-slate-950">Scan QR to File</h2>
           <p className="mt-1 text-sm text-slate-500">
             Enter the sender session ID, open the camera, and scan the QR sequence.
           </p>
         </div>
+
+        {cameraApiNeedsSecureUrl ? (
+          <div className="flex gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            <ShieldAlert className="mt-0.5 h-4 w-4 flex-none" aria-hidden="true" />
+            <span>
+              Camera access usually requires HTTPS on phones. Use localhost for local
+              tests or serve this camera URL over HTTPS for LAN devices.
+            </span>
+          </div>
+        ) : null}
 
         <ErrorNotice message={camera.error} onDismiss={clearCameraError} />
 
@@ -113,7 +126,7 @@ export function CameraPage() {
           </button>
         ) : (
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
-            Same-browser test appears after you create a Display Mode session in this
+            Same-browser test appears after you create a Generate QR session in this
             tab.
           </div>
         )}
@@ -136,6 +149,35 @@ export function CameraPage() {
       </section>
 
       <section className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-4 shadow-panel">
+        <section className="rounded-md border border-cyan-200 bg-white p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-cyan-700">Receive progress</p>
+              <div className="mt-1 flex items-baseline gap-2">
+                <span className="text-3xl font-semibold text-slate-950">{received}</span>
+                <span className="text-sm font-medium text-slate-500">
+                  {total ? `of ${total} chunks` : "chunks received"}
+                </span>
+              </div>
+            </div>
+            <div className="text-left sm:text-right">
+              <p className="text-2xl font-semibold text-slate-950">
+                {total ? `${Math.round(progress)}%` : "--"}
+              </p>
+              <p className="text-sm text-slate-500">
+                {total
+                  ? remaining === 0
+                    ? "All chunks received"
+                    : `${remaining} remaining`
+                  : "Waiting for first QR"}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <ProgressBar value={progress} />
+          </div>
+        </section>
+
         {camera.status === "complete" ? (
           <DownloadPanel
             metadata={camera.metadata}

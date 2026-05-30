@@ -24,10 +24,10 @@ Latest implementation commit at handoff:
 
 The app is a browser-only optical file transfer prototype. It has:
 
-- Display Mode for file upload, compression, chunking, hash generation, QR rendering, and timed QR playback.
-- Camera Mode for session entry, camera startup, frame scanning, QR decode, chunk validation, reconstruction, and download.
+- Generate QR mode at `/generate` for file upload, compression, chunking, hash generation, QR rendering, and timed QR playback.
+- Scan QR to File mode at `/camera` for session entry, camera startup, frame scanning, QR decode, chunk validation, reconstruction, and download.
 - QR Loopback Test for same-browser validation without physical camera optics.
-- Receiver Setup QR that opens `/camera?session=...` with the session prefilled.
+- Camera URL QR that opens `/camera?session=...` with the session prefilled.
 - Camera Log panel for browser-side camera and QR loopback diagnostics.
 - Five-digit dev port configured by default.
 
@@ -66,7 +66,7 @@ Then use a LAN URL such as:
 http://192.168.1.10:15173
 ```
 
-Display Mode includes a `Receiver Setup QR` panel. If the receiver is a phone, set the receiver app base URL to the LAN URL, not `127.0.0.1`.
+Generate QR includes a `Camera URL QR` panel. If the receiver is a phone, set the camera app base URL to the LAN URL, not `127.0.0.1`.
 
 ## Verification Commands
 
@@ -153,7 +153,7 @@ That result was after QR loopback reliability fixes.
 - Real optical transfer still needs physical camera testing.
 - Same-browser loopback proves QR encode/decode, but not screen-to-camera focus, glare, exposure, motion blur, or camera permission behavior.
 - A 1 MB file at current settings may take roughly 6-8 minutes if it does not compress well.
-- Large files are technically accepted up to 100 MB but are not practical for QR optical transfer at current settings.
+- Large files are limited to 10 MB because QR optical transfer is slow and browser-side compression is memory-intensive.
 - Camera failures are browser-side; inspect the in-app Camera Log panel, not server logs.
 - Dev log files such as `dev-15173.out.log` and `vite-dev.log` were empty during testing.
 
@@ -161,19 +161,19 @@ That result was after QR loopback reliability fixes.
 
 ### QR Loopback Local Test
 
-1. Open Display Mode.
+1. Open Generate QR.
 2. Upload file.
 3. Start transfer.
-4. Switch to Camera Mode in the same tab.
+4. Switch to Scan QR to File in the same tab.
 5. Click `Run QR Loopback Test`.
 6. Download reconstructed file when shown.
 
 ### Real Optical Test
 
-1. Open Display Mode on sender computer.
+1. Open Generate QR on sender computer.
 2. Upload file and start transfer.
-3. Scan the `Receiver Setup QR` with the receiver phone's normal camera.
-4. Camera Mode opens with the session ID prefilled.
+3. Scan the `Camera URL QR` with the receiver phone's normal camera.
+4. Scan QR to File opens with the session ID prefilled.
 5. Click Start Camera.
 6. Point camera at the sender QR display.
 7. Download once transfer completes.

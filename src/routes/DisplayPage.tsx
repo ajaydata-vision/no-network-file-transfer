@@ -46,7 +46,7 @@ export function DisplayPage() {
     <div className="grid gap-4 lg:grid-cols-[390px_minmax(0,1fr)]">
       <section className="space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-panel">
         <div>
-          <h2 className="text-lg font-semibold text-slate-950">Display Mode</h2>
+          <h2 className="text-lg font-semibold text-slate-950">Generate QR</h2>
           <p className="mt-1 text-sm text-slate-500">
             Choose a file and show the generated QR sequence on this screen.
           </p>

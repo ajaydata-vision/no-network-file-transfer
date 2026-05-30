@@ -22,7 +22,7 @@ export function Header() {
             Optical File Transfer
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Local browser transfer through camera-readable QR frames.
+            Generate QR frames on one screen, then scan them from the camera URL.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

@@ -26,7 +26,7 @@ npm run dev
 Open:
 
 ```text
-http://127.0.0.1:15173
+http://127.0.0.1:15173/generate
 ```
 
 Camera access works on `localhost` in modern browsers.
@@ -43,19 +43,23 @@ Then open the app from your computer's LAN address, for example:
 http://192.168.1.10:15173
 ```
 
-Use that LAN base URL in the Display Mode `Receiver Setup QR` field so a phone can scan one setup QR and open Camera Mode with the session prefilled.
+Use that LAN base URL in the Generate QR page's `Camera URL QR` field so a phone can scan one setup QR and open the camera URL with the session prefilled.
+
+Phone camera access usually requires HTTPS for LAN URLs. `localhost` works for local
+testing, but a phone opening `http://192.168...` may block camera permission until the
+app is served over HTTPS.
 
 ## Modes
 
-### Display Mode
+### Generate QR
 
-1. Open `/display`.
-2. Select a file up to 100 MB.
+1. Open `/generate`.
+2. Select a file up to 10 MB.
 3. Click `Start Transfer`.
 4. Copy/share the session ID.
 5. Keep the QR code visible. The sender loops chunks until stopped or expired.
 
-### Camera Mode
+### Scan QR to File
 
 1. Open `/camera` on another device or tab.
 2. Enter the session ID.
@@ -67,8 +71,8 @@ Use that LAN base URL in the Display Mode `Receiver Setup QR` field so a phone c
 
 For local verification without a second device:
 
-1. Create a Display Mode transfer.
-2. Switch to Camera Mode in the same browser.
+1. Create a Generate QR transfer.
+2. Switch to Scan QR to File in the same browser.
 3. Click `Run QR Loopback Test`.
 4. The app renders each chunk as a QR image in memory, decodes that QR image with `jsQR`, then sends only the decoded QR text into the receiver.
 5. The receiver validates chunk hashes, reconstructs the file, verifies the final file hash, and shows the download when reconstruction succeeds.

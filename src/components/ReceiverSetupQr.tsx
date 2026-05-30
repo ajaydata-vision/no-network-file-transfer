@@ -1,6 +1,7 @@
 import QRCode from "qrcode";
 import { Check, Copy, ExternalLink, QrCode } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { copyText } from "../lib/clipboard";
 
 type ReceiverSetupQrProps = {
   sessionId: string;
@@ -9,7 +10,8 @@ type ReceiverSetupQrProps = {
 export function ReceiverSetupQr({ sessionId }: ReceiverSetupQrProps) {
   const [baseUrl, setBaseUrl] = useState(() => window.location.origin);
   const [dataUrl, setDataUrl] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "manual">("idle");
+  const manualTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const receiverUrl = useMemo(() => {
     const cleanBase = baseUrl.replace(/\/+$/, "");
@@ -38,17 +40,26 @@ export function ReceiverSetupQr({ sessionId }: ReceiverSetupQrProps) {
     };
   }, [receiverUrl]);
 
+  useEffect(() => {
+    if (copyStatus === "manual") {
+      manualTextareaRef.current?.focus();
+      manualTextareaRef.current?.select();
+    }
+  }, [copyStatus]);
+
   async function copyUrl() {
-    await navigator.clipboard.writeText(receiverUrl);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1400);
+    const result = await copyText(receiverUrl);
+    setCopyStatus(result);
+    if (result === "copied") {
+      window.setTimeout(() => setCopyStatus("idle"), 1400);
+    }
   }
 
   return (
     <section className="rounded-md border border-slate-200 bg-white p-4">
       <div className="flex items-center gap-2">
         <QrCode className="h-4 w-4 text-cyan-700" aria-hidden="true" />
-        <h2 className="text-sm font-semibold text-slate-950">Receiver Setup QR</h2>
+        <h2 className="text-sm font-semibold text-slate-950">Camera URL QR</h2>
       </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)]">
         <div className="flex h-32 w-32 items-center justify-center rounded-md border border-slate-200 bg-white p-2">
@@ -60,7 +71,7 @@ export function ReceiverSetupQr({ sessionId }: ReceiverSetupQrProps) {
         </div>
         <div className="min-w-0 space-y-3">
           <label className="block text-sm">
-            <span className="font-medium text-slate-700">Receiver app base URL</span>
+            <span className="font-medium text-slate-700">Camera app base URL</span>
             <input
               value={baseUrl}
               onChange={(event) => setBaseUrl(event.target.value)}
@@ -69,6 +80,9 @@ export function ReceiverSetupQr({ sessionId }: ReceiverSetupQrProps) {
             />
           </label>
           <div className="rounded-md bg-slate-100 p-2 font-mono text-xs text-slate-700">
+            <span className="mb-1 block font-sans font-medium text-slate-500">
+              Camera URL
+            </span>
             <span className="break-all">{receiverUrl}</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -77,12 +91,12 @@ export function ReceiverSetupQr({ sessionId }: ReceiverSetupQrProps) {
               className="focus-ring inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               onClick={copyUrl}
             >
-              {copied ? (
+              {copyStatus === "copied" ? (
                 <Check className="h-4 w-4" aria-hidden="true" />
               ) : (
                 <Copy className="h-4 w-4" aria-hidden="true" />
               )}
-              Copy
+              {copyStatus === "manual" ? "Press Ctrl+C" : "Copy"}
             </button>
             <a
               href={receiverUrl}
@@ -92,6 +106,18 @@ export function ReceiverSetupQr({ sessionId }: ReceiverSetupQrProps) {
               Open
             </a>
           </div>
+          {copyStatus === "manual" ? (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-950">
+              <p className="mb-2 font-medium">Browser blocked clipboard access.</p>
+              <textarea
+                ref={manualTextareaRef}
+                readOnly
+                value={receiverUrl}
+                className="focus-ring h-16 w-full resize-none rounded border border-amber-300 bg-white p-2 font-mono text-xs text-slate-950"
+                onFocus={(event) => event.currentTarget.select()}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

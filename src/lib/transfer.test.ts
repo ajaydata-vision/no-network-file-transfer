@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { gzip } from "pako";
 import { base64ToUint8Array, uint8ArrayToBase64 } from "./base64";
-import { concatChunks, createPayloadForChunk, splitIntoChunks } from "./fileEncoding";
+import {
+  concatChunks,
+  createPayloadForChunk,
+  estimateSessionDurationMs,
+  splitIntoChunks,
+} from "./fileEncoding";
+import { DEFAULT_INTERVAL_MS, MIN_SESSION_DURATION_MS, SESSION_CYCLE_COUNT } from "./constants";
 import { reconstructFile } from "./fileDecoding";
 import { hashBytes } from "./hashing";
 import { validatePayloadForSession } from "./validation";
@@ -20,6 +26,13 @@ describe("transfer utilities", () => {
     const chunks = splitIntoChunks(bytes, 1000);
     expect(chunks).toHaveLength(6);
     expect(Array.from(concatChunks(chunks))).toEqual(Array.from(bytes));
+  });
+
+  it("sizes session expiry to the transfer chunk count", () => {
+    expect(estimateSessionDurationMs(1)).toBe(MIN_SESSION_DURATION_MS);
+    expect(estimateSessionDurationMs(10_000)).toBe(
+      10_000 * DEFAULT_INTERVAL_MS * SESSION_CYCLE_COUNT,
+    );
   });
 
   it("validates payloads and reconstructs out-of-order chunks", async () => {

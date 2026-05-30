@@ -1,5 +1,6 @@
 import { FileUp } from "lucide-react";
 import { useRef, useState } from "react";
+import { MAX_FILE_SIZE_BYTES } from "../lib/constants";
 import { formatBytes } from "../lib/format";
 
 type FileDropzoneProps = {
@@ -53,7 +54,9 @@ export function FileDropzone({ file, onSelect }: FileDropzoneProps) {
           {file ? file.name : "Drop a file or browse"}
         </span>
         <span className="text-sm text-slate-500">
-          {file ? `${formatBytes(file.size)} selected` : "Any file type up to 100 MB"}
+          {file
+            ? `${formatBytes(file.size)} selected`
+            : `Any file type up to ${formatBytes(MAX_FILE_SIZE_BYTES)}`}
         </span>
       </button>
     </div>

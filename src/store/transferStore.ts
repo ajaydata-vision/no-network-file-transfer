@@ -8,7 +8,8 @@ import {
 import { createDownloadUrl, revokeDownloadUrl } from "../lib/download";
 import { prepareFileTransfer } from "../lib/fileEncoding";
 import { reconstructFile } from "../lib/fileDecoding";
-import { clamp } from "../lib/format";
+import { clamp, formatBytes } from "../lib/format";
+import { createUiId } from "../lib/ids";
 import { emptyDiagnostics } from "../lib/diagnostics";
 import {
   isValidUuid,
@@ -105,7 +106,7 @@ const initialCamera: CameraState = {
 
 function notify(message: string, type: Notification["type"] = "info"): Notification {
   return {
-    id: crypto.randomUUID(),
+    id: createUiId("notification"),
     message,
     type,
   };
@@ -113,7 +114,7 @@ function notify(message: string, type: Notification["type"] = "info"): Notificat
 
 function cameraLog(message: string): CameraLogEntry {
   return {
-    id: crypto.randomUUID(),
+    id: createUiId("camera-log"),
     time: Date.now(),
     message,
   };
@@ -145,7 +146,7 @@ export const useTransferStore = create<TransferStore>((set, get) => ({
           selectedFile: undefined,
           preparedTransfer: undefined,
           isTransferring: false,
-          error: "File is larger than the 100 MB limit.",
+          error: `File is larger than the ${formatBytes(MAX_FILE_SIZE_BYTES)} limit.`,
         },
       }));
       return;

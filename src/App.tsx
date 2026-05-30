@@ -10,10 +10,11 @@ export default function App() {
       <Header />
       <main className="mx-auto w-full max-w-7xl px-4 pb-8 pt-4 sm:px-6 lg:px-8">
         <Routes>
-          <Route path="/" element={<Navigate to="/display" replace />} />
-          <Route path="/display" element={<DisplayPage />} />
+          <Route path="/" element={<Navigate to="/generate" replace />} />
+          <Route path="/generate" element={<DisplayPage />} />
+          <Route path="/display" element={<Navigate to="/generate" replace />} />
           <Route path="/camera" element={<CameraPage />} />
-          <Route path="*" element={<Navigate to="/display" replace />} />
+          <Route path="*" element={<Navigate to="/generate" replace />} />
         </Routes>
       </main>
       <Notifications />

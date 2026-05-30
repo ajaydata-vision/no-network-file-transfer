@@ -2,7 +2,7 @@ import { Camera, MonitorUp } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const modes = [
-  { to: "/display", label: "Display", icon: MonitorUp },
+  { to: "/generate", label: "Generate", icon: MonitorUp },
   { to: "/camera", label: "Camera", icon: Camera },
 ];
 

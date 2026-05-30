@@ -1,6 +1,11 @@
 import { gzip } from "pako";
 import { v4 as uuidv4 } from "uuid";
-import { CHUNK_SIZE_BYTES, SESSION_DURATION_MS } from "./constants";
+import {
+  CHUNK_SIZE_BYTES,
+  DEFAULT_INTERVAL_MS,
+  MIN_SESSION_DURATION_MS,
+  SESSION_CYCLE_COUNT,
+} from "./constants";
 import { hashArrayBuffer, hashBytes } from "./hashing";
 import { uint8ArrayToBase64 } from "./base64";
 import type { PreparedTransfer, TransferPayload } from "../types/transfer";
@@ -24,6 +29,13 @@ export function concatChunks(chunks: Uint8Array[]): Uint8Array {
   return output;
 }
 
+export function estimateSessionDurationMs(totalChunks: number): number {
+  return Math.max(
+    MIN_SESSION_DURATION_MS,
+    totalChunks * DEFAULT_INTERVAL_MS * SESSION_CYCLE_COUNT,
+  );
+}
+
 export async function prepareFileTransfer(file: File): Promise<PreparedTransfer> {
   const buffer = await file.arrayBuffer();
   const sourceBytes = new Uint8Array(buffer);
@@ -39,7 +51,7 @@ export async function prepareFileTransfer(file: File): Promise<PreparedTransfer>
     fileHash,
     sessionId: uuidv4(),
     createdAt,
-    expiresAt: createdAt + SESSION_DURATION_MS,
+    expiresAt: createdAt + estimateSessionDurationMs(chunks.length),
     chunks,
   };
 }

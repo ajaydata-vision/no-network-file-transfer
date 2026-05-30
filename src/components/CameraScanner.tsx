@@ -26,6 +26,11 @@ export function CameraScanner() {
   const recordScannedPayload = useTransferStore((state) => state.recordScannedPayload);
   const updateDiagnostics = useTransferStore((state) => state.updateDiagnostics);
   const setBrightnessBoost = useTransferStore((state) => state.setBrightnessBoost);
+  const brightnessBoostRef = useRef(brightnessBoost);
+
+  useEffect(() => {
+    brightnessBoostRef.current = brightnessBoost;
+  }, [brightnessBoost]);
 
   useEffect(() => {
     if (!isActive) {
@@ -132,7 +137,7 @@ export function CameraScanner() {
 
       context.drawImage(video, 0, 0, width, height);
       const image = context.getImageData(0, 0, width, height);
-      applyBrightness(image.data, brightnessBoost);
+      applyBrightness(image.data, brightnessBoostRef.current);
       const metrics = measureFrame(image.data);
       const code = jsQR(image.data, image.width, image.height, {
         inversionAttempts: "attemptBoth",
